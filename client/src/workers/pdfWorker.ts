@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-globals */
+ 
 import jsPDF from 'jspdf';
 
 type PdfRequest = {

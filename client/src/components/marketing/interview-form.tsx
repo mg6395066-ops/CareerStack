@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
@@ -140,6 +142,7 @@ export default function InterviewForm({
     retry: false,
   });
 
+  // All fields are flexible - accept any data type
   const {
     control,
     handleSubmit,
@@ -149,6 +152,31 @@ export default function InterviewForm({
     reset,
     trigger,
   } = useForm({
+    resolver: zodResolver(
+      z.object({
+        requirementId: z.any().optional(),
+        interviewDate: z.any().optional(),
+        interviewTime: z.any().optional(),
+        timezone: z.any().optional(),
+        interviewType: z.any().optional(),
+        status: z.any().optional(),
+        consultantId: z.any().optional(),
+        vendorCompany: z.any().optional(),
+        interviewWith: z.any().optional(),
+        result: z.any().optional(),
+        round: z.any().optional(),
+        mode: z.any().optional(),
+        meetingType: z.any().optional(),
+        duration: z.any().optional(),
+        subjectLine: z.any().optional(),
+        interviewer: z.any().optional(),
+        interviewLink: z.any().optional(),
+        interviewFocus: z.any().optional(),
+        specialNote: z.any().optional(),
+        jobDescription: z.any().optional(),
+        feedbackNotes: z.any().optional(),
+      }).passthrough()
+    ),
     defaultValues: {
       status: InterviewStatus.CONFIRMED,
       timezone: 'EST',

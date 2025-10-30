@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest, refreshCSRFToken } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,10 +56,11 @@ export default function RequirementsSection() {
   // Fetch consultants for assignment
   const { data: consultants = [] } = useQuery({
     queryKey: ['/api/marketing/consultants', 'all'],
-    staleTime: 0, // Always fetch fresh data
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes to prevent excessive refetches
+    gcTime: 10 * 60 * 1000,   // Keep in garbage collection for 10 minutes
     queryFn: async () => {
       try {
-        const response = await apiRequest('GET', '/api/marketing/consultants');
+        const response = await apiRequest('GET', '/api/marketing/consultants?limit=100&page=1');
         if (!response.ok) return [];
         
         const result = await response.json();
@@ -71,7 +72,7 @@ export default function RequirementsSection() {
         return [] as any[];
       }
     },
-    retry: false,
+    retry: 1,
   });
 
   // Fetch requirements with pagination and filtering
@@ -143,7 +144,10 @@ export default function RequirementsSection() {
       return result;
     },
     onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/marketing/requirements'] });
+      // Invalidate only the current page's requirements to avoid unnecessary refetches
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/marketing/requirements', currentPage, pageSize, statusFilter, debouncedSearch]
+      });
       toast.success('Requirement created successfully!');
       handleFormClose();
       // Refresh CSRF token for future operations
@@ -165,7 +169,10 @@ export default function RequirementsSection() {
       return response.json();
     },
     onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/marketing/requirements'] });
+      // Invalidate only the current page's requirements to avoid unnecessary refetches
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/marketing/requirements', currentPage, pageSize, statusFilter, debouncedSearch]
+      });
       toast.success('Requirement updated successfully!');
       handleFormClose();
       // Refresh CSRF token for future operations
@@ -187,7 +194,10 @@ export default function RequirementsSection() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/marketing/requirements'] });
+      // Invalidate only the current page's requirements to avoid unnecessary refetches
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/marketing/requirements', currentPage, pageSize, statusFilter, debouncedSearch]
+      });
       toast.success('Requirement deleted successfully!');
       setDeleteConfirm(null);
     },

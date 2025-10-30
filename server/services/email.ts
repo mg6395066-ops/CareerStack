@@ -29,7 +29,7 @@ export class EmailService {
         return null;
       }
 
-      this.transporter = nodemailer.createTransporter(emailConfig);
+      this.transporter = nodemailer.createTransport(emailConfig);
     }
     return this.transporter;
   }
@@ -86,7 +86,7 @@ export class EmailService {
         </div>
 
         <p style="color: #6b7280; font-size: 14px;">
-          This is an automated notification from CareerStack. Please review and address this error report promptly.
+          This is an automated notification from NRE Infusion OneHub Suite. Please review and address this error report promptly.
         </p>
       </div>
     `;

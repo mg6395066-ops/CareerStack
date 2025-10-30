@@ -1,4 +1,4 @@
-# 📄 CareerStack
+# 📄 NRE Infusion OneHub Suite
 
 <div align="center">
   <img src="https://img.shields.io/badge/React-18-blue?logo=react" alt="React" />
@@ -12,8 +12,8 @@
 </div>
 
 <div align="center">
-  <h3>🚀 Professional Resume Editor with AI-Powered Tech Stack Analysis</h3>
-  <p>A sophisticated full-stack application for creating, editing, and managing professional resumes with real DOCX compatibility and advanced document processing capabilities.</p>
+  <h3>🚀 Unified Platform for Resume Management, Email Integration & Marketing Automation</h3>
+  <p>A sophisticated full-stack application by NRE Infusion for managing professional resumes, email communications, and marketing workflows with real DOCX compatibility and advanced document processing capabilities.</p>
 </div>
 
 ## ✨ **Key Features**
@@ -151,15 +151,15 @@ Follow these steps to get the app running locally.
 1. Clone and install dependencies
 
 ```powershell
-git clone https://github.com/12shivam219/CareerStack.git
-cd CareerStack
+git clone https://github.com/NREinfusion/onehub-suite.git
+cd onehub-suite
 npm install
 ```
 
 2. Create a `.env` at the repository root. See the Environment variables section below for a full list. Minimal example:
 
 ```powershell
-Set-Content -Path .env -Value "DATABASE_URL=postgresql://username:password@localhost:5432/careerstack"
+Set-Content -Path .env -Value "DATABASE_URL=postgresql://username:password@localhost:5432/onehub_suite"
 Add-Content -Path .env -Value "NODE_ENV=development"
 Add-Content -Path .env -Value "PORT=5000"
 ```
@@ -204,7 +204,7 @@ Open http://localhost:5000 (or the `PORT` you configured).
 Create a `.env` file with the variables below. Required variables for local development are marked.
 
 - DATABASE_URL (required) — Postgres connection string used by Drizzle.
-  Example: `postgresql://user:password@localhost:5432/careerstack`
+  Example: `postgresql://user:password@localhost:5432/onehub_suite`
 - NODE_ENV — `development` | `production` (default: `development`).
 - PORT — Server port (default: `5000`).
 - SESSION_SECRET (required) — Secret used to sign session cookies.
@@ -218,7 +218,9 @@ Create a `.env` file with the variables below. Required variables for local deve
 Example `.env.example` (copy to `.env` and fill in values):
 
 ```env
-DATABASE_URL=postgresql://username:password@localhost:5432/careerstack
+DATABASE_URL=postgresql://username:password@localhost:5432/onehub_suite
+APP_NAME=NRE Infusion OneHub Suite
+COMPANY_NAME=NRE Infusion
 NODE_ENV=development
 PORT=5000
 SESSION_SECRET=your-session-secret

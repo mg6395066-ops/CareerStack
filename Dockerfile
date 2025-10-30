@@ -1,4 +1,4 @@
-# Multi-stage build for production optimization
+# NRE Infusion OneHub Suite - Multi-stage build for production optimization
 FROM node:20-alpine AS base
 
 # Install dependencies only when needed

@@ -16,9 +16,13 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ path, component: Com
   
   // Redirect logic that respects navigation and doesn't interfere with back button
   React.useEffect(() => {
+    // Don't redirect if user just logged in (justLoggedOut would be removed, causing auth query to run)
+    const justLoggedIn = localStorage.getItem('rcp_loginAt') ? 
+      (Date.now() - parseInt(localStorage.getItem('rcp_loginAt')!)) < 5000 : false;
+    
     // Check if we should redirect - either auth is checked and user not authenticated,
     // or circuit breaker is open (which means we can't verify auth)
-    const shouldRedirect = (isAuthChecked && !isAuthenticated) || 
+    const shouldRedirect = (isAuthChecked && !isAuthenticated && !justLoggedIn) || 
                           (error?.message === 'CIRCUIT_BREAKER_OPEN');
     
     if (shouldRedirect && !hasRedirected) {

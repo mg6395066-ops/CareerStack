@@ -12,7 +12,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   profileImageUrl?: string;
-  role?: string; // 'user' | 'marketing' | 'admin'
+  role: string; // 'user' | 'marketing' | 'admin'
   createdAt: string;
   updatedAt: string;
 }
@@ -23,7 +23,8 @@ export function useAuth() {
   const [isDisabled, setIsDisabled] = React.useState(false);
   
   // Check if we should prevent auth requests (but don't return early)
-  const shouldPreventAuth = authCircuitBreaker.isCircuitOpen() || authGlobalState.shouldPreventAuthRequest();
+  const justLoggedOut = localStorage.getItem('justLoggedOut') === 'true';
+  const shouldPreventAuth = justLoggedOut || authCircuitBreaker.isCircuitOpen() || authGlobalState.shouldPreventAuthRequest();
 
   const { data: user, isLoading, error } = useQuery<User>({
     queryKey: ["/api/auth/user"],
@@ -37,7 +38,8 @@ export function useAuth() {
           headers: {
             "X-Requested-With": "XMLHttpRequest"
           },
-          redirect: 'manual' // Don't follow redirects automatically
+          redirect: 'manual', // Don't follow redirects automatically
+          signal: AbortSignal.timeout(8000) // 8 second timeout
         });
 
         // Handle redirects manually
@@ -63,6 +65,8 @@ export function useAuth() {
         localStorage.removeItem('lastAuthLoopReset');
         localStorage.removeItem('lastAuthRedirect');
         localStorage.removeItem('lastPrivateRedirect');
+        // IMPORTANT: Clear logout flag on successful login
+        localStorage.removeItem('justLoggedOut');
         
         return data as User;
       } catch (error: any) {
@@ -83,16 +87,16 @@ export function useAuth() {
       if (error.message === 'UNAUTHORIZED' || error.message === 'USER_NOT_FOUND') {
         return false;
       }
-      // Retry network errors up to 2 times
-      return failureCount < 2;
+      // Retry network errors up to 1 time only
+      return failureCount < 1;
     },
-    retryDelay: 1000,
-    staleTime: 30 * 1000, // 30 seconds
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    retryDelay: 500, // Reduced from 1000ms
+    staleTime: 60 * 1000, // 60 seconds (increased from 30)
+    gcTime: 10 * 60 * 1000, // Keep longer in cache to avoid refetch
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchInterval: false,
-    refetchOnMount: true,
+    refetchOnMount: true, // Refetch on mount to ensure fresh auth state
     enabled: !isDisabled && !shouldPreventAuth,
   });
 
@@ -130,7 +134,12 @@ export function useAuth() {
   // Define clearLocalSession outside of logout to make it reusable
   const clearLocalSession = async () => {
     try {
-      queryClient.clear();
+      // Set logout flag to prevent re-authentication
+      localStorage.setItem('justLoggedOut', 'true');
+      
+      // Immediately clear query cache
+      queryClient.setQueryData(["/api/auth/user"], null);
+      queryClient.removeQueries({ queryKey: ["/api/auth/user"] });
       
       // Clear all auth-related localStorage
       const keysToRemove = Object.keys(localStorage).filter(key =>
@@ -157,11 +166,20 @@ export function useAuth() {
           .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
       });
       
-      await clearAllClientAuthData({ preservePreferences: true });
+      // Run heavy cleanup in background (non-blocking)
+      // Don't await this - let it complete in the background
+      clearAllClientAuthData({ preservePreferences: true }).catch(e => {
+        console.error('Background cleanup error:', e);
+      });
+      
+      // Clear logout flag after 5 seconds (allow re-login)
+      setTimeout(() => {
+        localStorage.removeItem('justLoggedOut');
+      }, 5000);
     } catch (e) {
       console.error('Error clearing local session:', e);
       // Fallback cleanup
-      queryClient.clear();
+      queryClient.removeQueries({ queryKey: ["/api/auth/user"] });
       localStorage.clear();
       sessionStorage.clear();
     }
@@ -169,11 +187,14 @@ export function useAuth() {
 
   const logout = async () => {
     try {
+      // IMMEDIATELY disable the auth query to prevent re-fetching
+      setIsDisabled(true);
+      
       // Show logout message immediately
       toast({
         title: "Logging out...",
-        description: "Please wait a moment.",
-        duration: 1000,
+        description: "Redirecting...",
+        duration: 300,
       });
 
       const csrfToken = document.cookie
@@ -181,47 +202,43 @@ export function useAuth() {
         .find(row => row.startsWith('csrf_token='))
         ?.split('=')[1];
 
-      // Wait for server logout to complete
-      try {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": csrfToken || "",
-          },
-          timeout: 5000, // 5 second timeout
-        });
-      } catch (serverError) {
-        console.warn("Server logout failed, proceeding with local cleanup:", serverError);
-      }
-
-      // Clear local session data after server logout
-      await clearLocalSession();
-      
-      // Clear query cache
+      // IMMEDIATELY clear query cache BEFORE server call
       queryClient.setQueryData(["/api/auth/user"], null);
-      queryClient.clear();
+      queryClient.removeQueries({ queryKey: ["/api/auth/user"] });
+
+      // Start server logout (don't await - do it in background)
+      fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken || "",
+        },
+        signal: AbortSignal.timeout(2000), // 2 second timeout
+      })
+        .then(response => {
+          if (response.ok) {
+            console.log("Server logout completed successfully");
+          } else {
+            console.warn("Server logout returned non-200 status:", response.status);
+          }
+        })
+        .catch(serverError => {
+          console.warn("Server logout failed:", serverError);
+        });
+
+      // Clear local session data immediately (non-blocking)
+      clearLocalSession();
       
-      // Redirect after cleanup is complete
-      window.location.href = "/";
+      // Redirect IMMEDIATELY - the query is already disabled
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 100); // Minimal delay
       
     } catch (error) {
       console.error("Logout error:", error);
-      
-      // Even on error, clear everything and redirect for security
-      try {
-        await clearLocalSession();
-        queryClient.setQueryData(["/api/auth/user"], null);
-        queryClient.clear();
-      } catch (e) {
-        console.error("Error during cleanup:", e);
-        // Force clear everything as fallback
-        localStorage.clear();
-        sessionStorage.clear();
-        queryClient.clear();
-      }
-      
+      setIsDisabled(true);
+      // Force redirect for security
       window.location.href = "/";
     }
   };

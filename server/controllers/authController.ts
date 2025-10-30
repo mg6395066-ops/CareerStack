@@ -126,33 +126,35 @@ export class AuthController {
       res.status(201).json({ 
         message: 'Registration successful. Please check your email to verify your account.',
         userId: newUser.id.toString(),
+        verificationToken: verification.token,
+        email: newUser.email,
       });
     } catch (error) {
-      logger.error({ error: error }, 'Registration error:');
+      logger.error({ error }, 'Registration error');
       res.status(500).json({ message: 'Registration failed. Please try again.' });
     }
   }
 
   // Login user
   static login(req: Request, res: Response, next: any) {
-    logger.info('Login attempt:', { email: req.body?.email, hasPassword: !!req.body?.password });
+    logger.info({ email: req.body?.email, hasPassword: !!req.body?.password }, 'Login attempt');
     
     passport.authenticate('local', async (err: any, user: any, info: any) => {
       try {
         if (err) {
-          logger.error({ error: err }, 'Passport authentication error:');
+          logger.error({ error: err }, 'Passport authentication error');
           return next(err);
         }
 
         if (!user) {
-          logger.error('Login failed - no user:', { info, email: req.body?.email });
+          logger.error({ info, email: req.body?.email }, 'Login failed - no user');
           return res.status(401).json({ 
             success: false,
             message: info?.message || 'Invalid email or password' 
           });
         }
 
-        logger.info('User authenticated successfully:', { userId: user.id, email: user.email });
+        logger.info({ userId: user.id, email: user.email }, 'User authenticated successfully');
 
         // Check if account is locked
         if (user.accountLockedUntil && user.accountLockedUntil > new Date()) {
@@ -497,7 +499,7 @@ export class AuthController {
         message: 'If an account with that email exists, a password reset link has been sent.' 
       });
     } catch (error) {
-      logger.error({ error: error }, 'Password reset request error:');
+      logger.error({ error }, 'Password reset request error');
       res.status(500).json({ message: 'Failed to process password reset request' });
     }
   }
@@ -539,22 +541,22 @@ export class AuthController {
 
       res.json({ message: 'Password has been reset successfully' });
     } catch (error) {
-      logger.error({ error: error }, 'Password reset error:');
+      logger.error({ error }, 'Password reset error');
       res.status(400).json({ message: 'Invalid or expired password reset token' });
     }
   }
 
   // Get current user
   static async getCurrentUser(req: Request, res: Response) {
-    logger.info('getCurrentUser called:', { 
+    logger.info({ 
       hasUser: !!req.user, 
       userId: req.user?.id,
       isAuthenticated: req.isAuthenticated?.(),
       sessionID: req.sessionID
-    });
+    }, 'getCurrentUser called');
 
     if (!req.user) {
-      logger.warn('No user in request object');
+      logger.warn({}, 'No user in request object');
       return res.status(401).json({ message: 'Not authenticated' });
     }
 
@@ -564,17 +566,17 @@ export class AuthController {
       });
 
       if (!user) {
-        logger.error('User not found in database:', { userId: req.user.id });
+        logger.error({ userId: req.user.id }, 'User not found in database');
         return res.status(404).json({ message: 'User not found' });
       }
 
-      logger.info('User found successfully:', { userId: user.id, email: user.email });
+      logger.info({ userId: user.id, email: user.email }, 'User found successfully');
 
       // Remove sensitive data
       const { password, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {
-      logger.error({ error: error }, 'Get current user error:');
+      logger.error({ error }, 'Get current user error');
       res.status(500).json({ message: 'Failed to fetch user data' });
     }
   }
@@ -638,27 +640,39 @@ export class AuthController {
 
         if (req.session) {
           // Use passport's logout helper and destroy the session
-          req.logout(() => {
-            req.session!.destroy((err) => {
-              if (err) {
-                logger.error({ error: err }, 'Session destruction error during logout:');
-                return res.status(500).json({ message: 'Failed to complete logout' });
+          return new Promise<void>((resolve, reject) => {
+            req.logout((logoutErr) => {
+              if (logoutErr) {
+                logger.error({ error: logoutErr }, 'Passport logout error');
+                reject(logoutErr);
+                return;
               }
-              // Clear the session cookie with the same options used when setting it
-              res.clearCookie('sid', {
-                path: '/',
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                domain: process.env.COOKIE_DOMAIN || undefined,
+              
+              req.session!.destroy((destroyErr) => {
+                if (destroyErr) {
+                  logger.error({ error: destroyErr }, 'Session destruction error during logout');
+                  res.status(500).json({ message: 'Failed to complete logout' });
+                  resolve();
+                  return;
+                }
+                
+                // Clear the session cookie with the same options used when setting it
+                res.clearCookie('sid', {
+                  path: '/',
+                  httpOnly: true,
+                  secure: process.env.NODE_ENV === 'production',
+                  sameSite: 'lax',
+                  domain: process.env.COOKIE_DOMAIN || undefined,
+                });
+                // Also clear CSRF token
+                res.clearCookie('csrf_token', { path: '/' });
+                res.json({ message: 'Logged out successfully' });
+                resolve();
               });
-              // Also clear CSRF token
-              res.clearCookie('csrf_token', { path: '/' });
-              return res.json({ message: 'Logged out successfully' });
             });
           });
         } else {
-          return res.json({ message: 'Already logged out' });
+          res.json({ message: 'Already logged out' });
         }
       } catch (error) {
         logger.error({ error: error }, 'Logout (session) error:');

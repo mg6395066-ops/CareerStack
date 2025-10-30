@@ -52,20 +52,18 @@ const Router = memo(() => {
     }
   }, []);
 
-  // Preload likely next pages based on auth status
+  // Preload likely next pages based on auth status (delayed to avoid blocking initial load)
   useEffect(() => {
     if (!isLoading) {
       const preloadTimer = setTimeout(() => {
         if (isAuthenticated) {
-          // Preload dashboard and marketing for authenticated users
-          import('@/pages/dashboard');
-          import('@/pages/marketing');
-          import('@/pages/email');
+          // Only preload one critical page to avoid blocking initial render
+          import('@/pages/dashboard').catch(() => {});
         } else {
           // Preload landing for non-authenticated users
-          import('@/pages/landing');
+          import('@/pages/landing').catch(() => {});
         }
-      }, 100);
+      }, 2000); // Increased delay to 2 seconds to avoid blocking
       return () => clearTimeout(preloadTimer);
     }
   }, [isAuthenticated, isLoading]);

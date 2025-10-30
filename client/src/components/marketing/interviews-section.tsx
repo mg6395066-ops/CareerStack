@@ -154,7 +154,10 @@ export default function InterviewsSection() {
       return response.json();
     },
     onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/marketing/interviews'] });
+      // Invalidate only the current page's interviews to avoid unnecessary refetches
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/marketing/interviews', pagination.page, pagination.pageSize, activeTab, debouncedSearch]
+      });
       toast.success('Interview scheduled successfully!');
       handleFormClose();
       // Refresh CSRF token for future operations
@@ -176,7 +179,10 @@ export default function InterviewsSection() {
       return response.json();
     },
     onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/marketing/interviews'] });
+      // Invalidate only the current page's interviews to avoid unnecessary refetches
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/marketing/interviews', pagination.page, pagination.pageSize, activeTab, debouncedSearch]
+      });
       toast.success('Interview updated successfully!');
       handleFormClose();
       // Refresh CSRF token for future operations
@@ -198,7 +204,10 @@ export default function InterviewsSection() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/marketing/interviews'] });
+      // Invalidate only the current page's interviews to avoid unnecessary refetches
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/marketing/interviews', pagination.page, pagination.pageSize, activeTab, debouncedSearch]
+      });
       toast.success('Interview deleted successfully!');
       setDeleteConfirm(null);
     },

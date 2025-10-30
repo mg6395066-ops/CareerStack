@@ -160,13 +160,13 @@ export async function sendEmail(
       
       // Anti-spam headers
       headers: {
-        'X-Mailer': 'Resume Customizer Pro v1.0',
+        'X-Mailer': 'NRE Infusion OneHub Suite v1.0',
         'X-Priority': options?.priority === 'high' ? '1' : options?.priority === 'low' ? '5' : '3',
         'X-MSMail-Priority': options?.priority === 'high' ? 'High' : options?.priority === 'low' ? 'Low' : 'Normal',
         'Importance': options?.priority === 'high' ? 'high' : options?.priority === 'low' ? 'low' : 'normal',
         'X-Auto-Response-Suppress': 'OOF, DR, RN, NRN, AutoReply',
         'List-Unsubscribe': `<mailto:unsubscribe@${domain}>`,
-        'X-Entity-ID': `resume-customizer-pro-${Date.now()}`,
+        'X-Entity-ID': `onehub-suite-${Date.now()}`,
         'Return-Path': fromHeader.includes('<') ? fromHeader.match(/<(.+)>/)?.[1] : fromHeader,
         ...(options?.category && { 'X-Category': options.category }),
         
@@ -258,14 +258,14 @@ export const emailTemplates = {
       <body style="margin: 0; padding: 0; background-color: #f5f5f5;">
         <div class="email-container" style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
           <div class="header">
-            <h1 style="margin: 0; font-size: 24px;">Resume Customizer Pro</h1>
+            <h1 style="margin: 0; font-size: 24px;">NRE Infusion OneHub Suite</h1>
           </div>
           
           <div class="content">
-            <h2 style="color: #333; margin-bottom: 20px;">Welcome to Resume Customizer Pro!</h2>
+            <h2 style="color: #333; margin-bottom: 20px;">Welcome to NRE Infusion OneHub Suite!</h2>
             <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">Hello ${name},</p>
             <p style="color: #555; line-height: 1.6; margin-bottom: 25px;">
-              Thank you for creating your Resume Customizer Pro account. To get started, please verify your email address by clicking the button below:
+              Thank you for creating your NRE Infusion OneHub Suite account. To get started, please verify your email address by clicking the button below:
             </p>
             
             <div style="text-align: center; margin: 30px 0;">
@@ -278,12 +278,12 @@ export const emailTemplates = {
             <div class="link-fallback">${verificationLink}</div>
             
             <p style="color: #666; line-height: 1.6; font-size: 14px;">
-              If you didn't create an account with Resume Customizer Pro, you can safely ignore this email.
+              If you didn't create an account with NRE Infusion OneHub Suite, you can safely ignore this email.
             </p>
           </div>
           
           <div class="footer">
-            <p style="margin: 0;">Best regards,<br><strong>The Resume Customizer Pro Team</strong></p>
+            <p style="margin: 0;">Best regards,<br><strong>The NRE Infusion OneHub Suite Team</strong></p>
             <p style="margin: 10px 0 0 0;">This email was sent to verify your account. Please do not reply to this email.</p>
           </div>
         </div>
@@ -293,7 +293,7 @@ export const emailTemplates = {
   }),
   
   passwordReset: (name: string, resetLink: string) => ({
-    subject: 'Reset Your Resume Customizer Pro Password',
+    subject: 'Reset Your NRE Infusion OneHub Suite Password',
     html: `
       <!DOCTYPE html>
       <html>
@@ -305,14 +305,14 @@ export const emailTemplates = {
       <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
           <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #4CAF50;">
-            <h1 style="color: #4CAF50; margin: 0;">Resume Customizer Pro</h1>
+            <h1 style="color: #4CAF50; margin: 0;">NRE Infusion OneHub Suite</h1>
           </div>
           
           <div style="padding: 30px 0;">
             <h2 style="color: #333; margin-bottom: 20px;">Password Reset Request</h2>
             <p style="color: #666; line-height: 1.6;">Hello ${name},</p>
             <p style="color: #666; line-height: 1.6;">
-              We received a request to reset your password for your Resume Customizer Pro account. 
+              We received a request to reset your password for your NRE Infusion OneHub Suite account.
               If you made this request, click the button below to set a new password:
             </p>
             
@@ -343,7 +343,7 @@ export const emailTemplates = {
           </div>
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; text-align: center; color: #999; font-size: 12px;">
-            <p>Best regards,<br><strong>The Resume Customizer Pro Team</strong></p>
+            <p>Best regards,<br><strong>The NRE Infusion OneHub Suite Team</strong></p>
             <p>This is an automated message. Please do not reply to this email.</p>
           </div>
         </div>
@@ -362,7 +362,7 @@ export const emailTemplates = {
         <h1 style="text-align: center; font-size: 32px; letter-spacing: 5px; margin: 20px 0;">${code}</h1>
         <p>This code will expire in 10 minutes.</p>
         <p>If you didn't request this code, please secure your account immediately.</p>
-        <p>Best regards,<br>The Resume Customizer Pro Team</p>
+        <p>Best regards,<br>The NRE Infusion OneHub Suite Team</p>
       </div>
     `,
   }),

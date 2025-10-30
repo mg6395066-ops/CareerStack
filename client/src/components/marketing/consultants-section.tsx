@@ -188,8 +188,10 @@ function ConsultantsSection() {
       await refreshCSRFToken();
     },
     onSettled: () => {
-      // Refetch to get actual data from server
-      queryClient.invalidateQueries({ queryKey: ['/api/marketing/consultants'] });
+      // Refetch specific page only to avoid loading all consultants
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/marketing/consultants', pagination.page, pagination.pageSize, statusFilter, debouncedSearch]
+      });
     },
   });
 

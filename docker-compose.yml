@@ -37,7 +37,7 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=careerstack
+      - POSTGRES_DB=onehub_suite
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:

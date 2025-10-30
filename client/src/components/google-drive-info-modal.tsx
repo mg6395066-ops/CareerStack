@@ -127,7 +127,7 @@ export default function GoogleDriveInfoModal({ children }: GoogleDriveInfoModalP
                 <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">3</div>
                 <div>
                   <p className="font-medium text-gray-900">Select & Import</p>
-                  <p className="text-sm text-gray-600">Click on any DOCX file to import it directly into Resume Customizer Pro</p>
+                  <p className="text-sm text-gray-600">Click on any DOCX file to import it directly into NRE Infusion OneHub Suite</p>
                 </div>
               </div>
               

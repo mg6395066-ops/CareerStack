@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -131,6 +133,7 @@ export default function AdvancedConsultantForm({
   const [activeTab, setActiveTab] = useState('consultant');
   const queryClient = useQueryClient();
 
+  // All fields are flexible - accept any data type
   const {
     control,
     handleSubmit,
@@ -140,6 +143,40 @@ export default function AdvancedConsultantForm({
     reset,
     trigger,
   } = useForm({
+    resolver: zodResolver(
+      z.object({
+        status: z.any().optional(),
+        firstName: z.any().optional(),
+        lastName: z.any().optional(),
+        name: z.any().optional(),
+        email: z.any().optional(),
+        phone: z.any().optional(),
+        location: z.any().optional(),
+        primarySkills: z.any().optional(),
+        secondarySkills: z.any().optional(),
+        totalExperience: z.any().optional(),
+        linkedinProfile: z.any().optional(),
+        portfolioLink: z.any().optional(),
+        availability: z.any().optional(),
+        visaStatus: z.any().optional(),
+        dateOfBirth: z.any().optional(),
+        address: z.any().optional(),
+        timezone: z.any().optional(),
+        degreeName: z.any().optional(),
+        university: z.any().optional(),
+        yearOfPassing: z.any().optional(),
+        ssn: z.any().optional(),
+        howDidYouGetVisa: z.any().optional(),
+        yearCameToUS: z.any().optional(),
+        countryOfOrigin: z.any().optional(),
+        whyLookingForNewJob: z.any().optional(),
+        preferredWorkLocation: z.any().optional(),
+        preferredWorkType: z.any().optional(),
+        expectedRate: z.any().optional(),
+        payrollCompany: z.any().optional(),
+        payrollContactInfo: z.any().optional(),
+      }).passthrough()
+    ),
     defaultValues: {
       status: ConsultantStatus.ACTIVE,
       ...initialData,

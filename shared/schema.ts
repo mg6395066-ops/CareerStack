@@ -72,7 +72,14 @@ export const users: any = pgTable("users", {
   rejectedBy: varchar("rejected_by").references(() => users.id, { onDelete: 'set null' }),
   rejectedAt: timestamp("rejected_at"),
   rejectionReason: text("rejection_reason"),
-});
+}, (table) => [
+  // PERFORMANCE INDEXES for fast auth lookups
+  index("idx_users_email").on(table.email),
+  index("idx_users_approval_status").on(table.approvalStatus),
+  index("idx_users_email_verified").on(table.emailVerified),
+  index("idx_users_created_at").on(table.createdAt),
+  index("idx_users_role").on(table.role),
+]);
 
 // User devices/sessions table
 export const userDevices = pgTable("user_devices", {
@@ -90,7 +97,14 @@ export const userDevices = pgTable("user_devices", {
   isRevoked: boolean("is_revoked").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  // PERFORMANCE INDEXES for fast device lookups
+  index("idx_user_devices_user_id").on(table.userId),
+  index("idx_user_devices_refresh_token").on(table.refreshToken),
+  index("idx_user_devices_is_revoked").on(table.isRevoked),
+  index("idx_user_devices_expires_at").on(table.expiresAt),
+  index("idx_user_devices_user_id_revoked").on(table.userId, table.isRevoked),
+]);
 
 // Account activity log
 export const accountActivityLogs = pgTable("account_activity_logs", {
@@ -102,7 +116,13 @@ export const accountActivityLogs = pgTable("account_activity_logs", {
   status: varchar("status").notNull(), // success, failed
   metadata: jsonb("metadata"), // Additional data about the activity
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  // PERFORMANCE INDEXES for activity queries
+  index("idx_account_activity_logs_user_id").on(table.userId),
+  index("idx_account_activity_logs_activity_type").on(table.activityType),
+  index("idx_account_activity_logs_created_at").on(table.createdAt),
+  index("idx_account_activity_logs_status").on(table.status),
+]);
 
 // Login history table - detailed tracking of all login attempts
 export const loginHistory = pgTable("login_history", {
@@ -691,30 +711,97 @@ export const attachmentsRelations = relations(attachments, ({ one }) => ({
 }));
 
 // Insert schemas for Marketing module
-export const insertConsultantSchema = createInsertSchema(consultants).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+// Made completely flexible - accept any data type for any field
 
-export const insertConsultantProjectSchema = createInsertSchema(consultantProjects).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+// Consultant schema - completely flexible, any data accepted
+export const insertConsultantSchema = z.object({
+  status: z.any().optional(),
+  name: z.any().optional(),
+  visaStatus: z.any().optional(),
+  dateOfBirth: z.any().optional(),
+  address: z.any().optional(),
+  email: z.any().optional(),
+  phone: z.any().optional(),
+  timezone: z.any().optional(),
+  degreeName: z.any().optional(),
+  university: z.any().optional(),
+  yearOfPassing: z.any().optional(),
+  ssn: z.any().optional(),
+  howDidYouGetVisa: z.any().optional(),
+  yearCameToUS: z.any().optional(),
+  countryOfOrigin: z.any().optional(),
+  whyLookingForNewJob: z.any().optional(),
+  displayId: z.any().optional(),
+  createdBy: z.string(), // Required
+}).passthrough();
 
-export const insertRequirementSchema = createInsertSchema(requirements).omit({
-  id: true,
-  requirementEnteredDate: true,
-  createdAt: true,
-  updatedAt: true,
-});
+// Consultant project schema - flexible
+export const insertConsultantProjectSchema = z.object({
+  consultantId: z.string().optional(),
+  projectName: z.any().optional(),
+  projectDomain: z.any().optional(),
+  projectCity: z.any().optional(),
+  projectState: z.any().optional(),
+  projectStartDate: z.any().optional(),
+  projectEndDate: z.any().optional(),
+  isCurrentlyWorking: z.any().optional(),
+  projectDescription: z.any().optional(),
+}).passthrough();
 
-export const insertInterviewSchema = createInsertSchema(interviews).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+// Requirement schema - flexible
+export const insertRequirementSchema = z.object({
+  consultantId: z.any(), // Required in DB
+  jobTitle: z.any(), // Required in DB
+  appliedFor: z.any(), // Required in DB
+  status: z.any().optional(),
+  nextStep: z.any().optional(),
+  rate: z.any().optional(),
+  remote: z.any().optional(),
+  duration: z.any().optional(),
+  marketingComments: z.any().optional(),
+  clientCompany: z.any().optional(),
+  impName: z.any().optional(),
+  clientWebsite: z.any().optional(),
+  impWebsite: z.any().optional(),
+  vendorCompany: z.any().optional(),
+  vendorWebsite: z.any().optional(),
+  vendorPersonName: z.any().optional(),
+  vendorPhone: z.any().optional(),
+  vendorEmail: z.any().optional(),
+  gotRequirement: z.any().optional(),
+  primaryTechStack: z.any().optional(),
+  completeJobDescription: z.any(), // Required in DB
+  displayId: z.any().optional(),
+  createdBy: z.string(), // Required
+}).passthrough();
+
+// Interview schema - flexible
+export const insertInterviewSchema = z.object({
+  requirementId: z.any(), // Required in DB
+  interviewDate: z.any(), // Required in DB
+  interviewTime: z.any(), // Required in DB
+  timezone: z.any().optional(),
+  interviewType: z.any().optional(),
+  status: z.any().optional(),
+  consultantId: z.any(), // Required in DB
+  marketingPersonId: z.any().optional(),
+  vendorCompany: z.any().optional(),
+  interviewWith: z.any().optional(),
+  result: z.any().optional(),
+  round: z.any().optional(),
+  mode: z.any().optional(),
+  meetingType: z.any().optional(),
+  duration: z.any().optional(),
+  subjectLine: z.any().optional(),
+  interviewer: z.any().optional(),
+  interviewLink: z.any().optional(),
+  interviewFocus: z.any().optional(),
+  specialNote: z.any().optional(),
+  jobDescription: z.any().optional(),
+  feedbackNotes: z.any().optional(),
+  displayId: z.any().optional(),
+  createdBy: z.string(), // Required
+}).passthrough();
 
 export const insertNextStepCommentSchema = createInsertSchema(nextStepComments).omit({
   id: true,

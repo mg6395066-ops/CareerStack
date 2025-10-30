@@ -1,5 +1,5 @@
 /**
- * Redis Integration Examples for Resume Customizer Pro
+ * Redis Integration Examples for NRE Infusion OneHub Suite
  * 
  * This file demonstrates how to properly use Redis throughout the application
  * for caching, session management, and performance optimization.

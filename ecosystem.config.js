@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'careerstack',
+      name: 'nre-onehub-suite',
       script: 'dist/index.js',
       instances: process.env.MIN_INSTANCES || 2,
       exec_mode: 'cluster',
@@ -77,8 +77,8 @@ module.exports = {
       user: 'ubuntu',
       host: ['prod-1', 'prod-2'],
       ref: 'origin/main',
-      repo: 'git@github.com:username/careerstack.git',
-      path: '/var/www/careerstack',
+      repo: 'git@github.com:username/nre-onehub-suite.git',
+      path: '/var/www/nre-onehub-suite',
       'post-deploy':
         'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
     },

@@ -68,7 +68,7 @@ export function AppHeader({ currentPage = 'dashboard' }: AppHeaderProps) {
               <FileText className="text-white" size={20} />
             </div>
             <h1 className="text-xl font-bold text-foreground tracking-tight">
-              CareerStack
+              NRE OneHub Suite
             </h1>
           </button>
 

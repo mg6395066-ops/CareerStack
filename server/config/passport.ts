@@ -19,18 +19,18 @@ export function configurePassport(passport: any) {
       },
       async (req, email, password, done) => {
         try {
-          logger.info('Passport strategy executing:', { email, hasPassword: !!password });
+          logger.info({ email, hasPassword: !!password }, 'Passport strategy executing');
           
           // Find user by email
           const user = await db.query.users.findFirst({
             where: eq(users.email, email.toLowerCase()),
           });
 
-          logger.info('User lookup result:', { found: !!user, email });
+          logger.info({ found: !!user, email }, 'User lookup result');
 
           // If user not found
           if (!user) {
-            logger.warn('User not found:', { email });
+            logger.warn({ email }, 'User not found');
             return done(null, false, { message: 'Invalid email or password' });
           }
 
@@ -60,7 +60,7 @@ export function configurePassport(passport: any) {
 
           // If email is not verified
           if (!user.emailVerified) {
-            logger.warn('Email not verified:', { email, userId: user.id });
+            logger.warn({ email, userId: user.id }, 'Email not verified');
             return done(null, false, {
               message: 'Please verify your email before logging in.',
               requiresVerification: true,
@@ -69,13 +69,13 @@ export function configurePassport(passport: any) {
 
           // Check approval status
           if (user.approvalStatus !== 'approved') {
-            logger.warn('User not approved:', { email, userId: user.id, approvalStatus: user.approvalStatus });
+            logger.warn({ email, userId: user.id, approvalStatus: user.approvalStatus }, 'User not approved');
             return done(null, false, {
               message: 'Account pending approval.',
             });
           }
 
-          logger.info('User passed all checks:', { email, userId: user.id });
+          logger.info({ email, userId: user.id }, 'User passed all checks');
 
           // Reset failed login attempts on successful login
           if ((user.failedLoginAttempts || 0) > 0) {

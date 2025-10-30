@@ -66,13 +66,13 @@ export const config = {
       accessToken: process.env.GMAIL_ACCESS_TOKEN,
     },
     service: process.env.EMAIL_SERVICE || 'gmail',
-    from: process.env.EMAIL_FROM || `"Resume Customizer Pro" <${process.env.EMAIL_USER}>`,
+    from: process.env.EMAIL_FROM || `"NRE Infusion OneHub Suite" <${process.env.EMAIL_USER}>`,
   },
   
   // Application
   app: {
     url: process.env.APP_URL!,
-    name: 'Resume Customizer Pro',
+    name: 'NRE Infusion OneHub Suite',
     supportEmail: process.env.SUPPORT_EMAIL || process.env.EMAIL_USER!,
   },
   

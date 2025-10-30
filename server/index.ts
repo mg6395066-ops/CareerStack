@@ -76,6 +76,25 @@ app.use(
 // Response compression
 app.use(compression());
 
+// Caching headers middleware for static assets
+app.use((req, res, next) => {
+  // Cache static assets for 1 year (content-hashed by build process)
+  if (req.path.match(/\.(js|css|woff2?|ttf|eot|svg|ico|png|jpg|jpeg|gif|webp)$/i)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  }
+  // Cache HTML for 1 hour (to pick up new versions)
+  else if (req.path.endsWith('.html') || req.path === '/') {
+    res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+  }
+  // Don't cache JSON API responses (they're dynamic)
+  else if (req.path.startsWith('/api/')) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+  next();
+});
+
 // Structured logging for production performance
 if (process.env.NODE_ENV === 'production') {
   app.use(pinoHttp({ level: process.env.LOG_LEVEL || 'info' }));

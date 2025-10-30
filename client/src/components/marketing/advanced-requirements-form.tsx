@@ -152,6 +152,7 @@ export default function AdvancedRequirementsForm({
   const [showBackupDialog, setShowBackupDialog] = useState(false);
 
   // Form setup - must be first
+  // All fields are flexible - accept any data type
   const {
     control,
     handleSubmit,
@@ -165,27 +166,27 @@ export default function AdvancedRequirementsForm({
     mode: 'onChange',
     resolver: zodResolver(
       z.object({
-        jobTitle: z.string().min(1, 'Job Title is required'),
-        status: z.string().min(1, 'Status is required'),
-        consultantId: z.string().min(1, 'Assigned Consultant is required'),
-        appliedFor: z.string().min(1, 'Applied For is required'),
-        completeJobDescription: z.string().min(1, 'Complete Job Description is required'),
-        // All other fields are optional
-        rate: z.string().optional(),
-        primaryTechStack: z.string().optional(),
-        clientCompany: z.string().optional(),
-        impName: z.string().optional(),
-        clientWebsite: z.string().optional(),
-        impWebsite: z.string().optional(),
-        vendorCompany: z.string().optional(),
-        vendorWebsite: z.string().optional(),
-        vendorPersonName: z.string().optional(),
-        vendorPhone: z.string().optional(),
-        vendorEmail: z.string().optional(),
-        nextStep: z.string().optional(),
-        remote: z.string().optional(),
-        duration: z.string().optional(),
-      })
+        jobTitle: z.any().optional(),
+        status: z.any().optional(),
+        consultantId: z.any().optional(),
+        appliedFor: z.any().optional(),
+        completeJobDescription: z.any().optional(),
+        // All other fields are optional and accept any type
+        rate: z.any().optional(),
+        primaryTechStack: z.any().optional(),
+        clientCompany: z.any().optional(),
+        impName: z.any().optional(),
+        clientWebsite: z.any().optional(),
+        impWebsite: z.any().optional(),
+        vendorCompany: z.any().optional(),
+        vendorWebsite: z.any().optional(),
+        vendorPersonName: z.any().optional(),
+        vendorPhone: z.any().optional(),
+        vendorEmail: z.any().optional(),
+        nextStep: z.any().optional(),
+        remote: z.any().optional(),
+        duration: z.any().optional(),
+      }).passthrough() // Allow extra fields
     ),
     defaultValues: {
       status: RequirementStatus.NEW,

@@ -209,7 +209,7 @@ export class EmailDeliverabilityService {
   ): Record<string, string> {
     const headers: Record<string, string> = {
       // Authentication headers
-      'X-Mailer': 'Resume Customizer Pro v1.0',
+      'X-Mailer': 'NRE Infusion OneHub Suite v1.0',
       'X-Priority': '3', // Normal priority
       'Importance': 'Normal',
       

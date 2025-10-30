@@ -81,15 +81,24 @@ export function LoginForm({ onForgotPassword, onSuccess }: LoginFormProps = {}) 
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        console.log('Login error response:', { status: response.status, error });
-
-        if (response.status === 403 && error?.requiresVerification) {
-          setRequiresVerification(true);
+        let errorMessage = 'Failed to login';
+        try {
+          const error = await response.json();
+          console.log('Login error response:', { status: response.status, error });
+          
+          if (response.status === 403 && error?.requiresVerification) {
+            setRequiresVerification(true);
+            errorMessage = error.message || 'Please verify your email before logging in';
+          } else if (response.status === 401) {
+            errorMessage = error.message || 'Invalid email or password';
+          } else {
+            errorMessage = error.message || error.error || `Login failed (${response.status})`;
+          }
+        } catch (parseError) {
+          console.log('Failed to parse error response:', parseError);
+          errorMessage = `Login failed with status ${response.status}`;
         }
-
-        // Ensure we throw an error to trigger the catch block
-        const errorMessage = error.message || error.error || 'Failed to login';
+        
         throw new Error(errorMessage);
       }
 
@@ -98,11 +107,16 @@ export function LoginForm({ onForgotPassword, onSuccess }: LoginFormProps = {}) 
 
       // Hint the app that a fresh login just happened (used by useAuth retry heuristics)
       try {
+        // IMPORTANT: Clear justLoggedOut flag so auth query can run
+        localStorage.removeItem('justLoggedOut');
+        
         localStorage.setItem('lastActiveTime', Date.now().toString());
         // Record the login timestamp for auto-logout enforcement
         localStorage.setItem('rcp_loginAt', Date.now().toString());
         localStorage.removeItem('authErrorHandledAt');
         localStorage.removeItem('authLastRedirectAt');
+        localStorage.removeItem('authLoopDetected');
+        localStorage.removeItem('lastAuthLoopReset');
         
         // Force refresh the auth query to pick up the new authentication state
         queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });

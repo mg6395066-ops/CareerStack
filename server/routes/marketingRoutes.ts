@@ -798,7 +798,7 @@ router.post('/requirements', conditionalCSRF, writeOperationsRateLimiter, async 
         marketingComments: []
       });
       
-      const [newRequirement] = await db.insert(requirements).values(requirementData).returning();
+      const [newRequirement] = await db.insert(requirements).values(requirementData as any).returning();
       
       // Log audit trail
       await logCreate(req.user!.id, 'requirement', newRequirement.id, newRequirement, req);
@@ -822,7 +822,7 @@ router.post('/requirements', conditionalCSRF, writeOperationsRateLimiter, async 
         });
       }));
 
-      const newRequirements = await db.insert(requirements).values(requirementDataArray).returning();
+      const newRequirements = await db.insert(requirements).values(requirementDataArray as any).returning();
       
       // Log bulk creation
       for (const newReq of newRequirements) {
@@ -1232,7 +1232,7 @@ router.post('/interviews', conditionalCSRF, writeOperationsRateLimiter, async (r
       createdBy: req.user!.id
     });
     
-    const [newInterview] = await db.insert(interviews).values(interviewData).returning();
+    const [newInterview] = await db.insert(interviews).values(interviewData as any).returning();
     
     // Log audit trail
     await logCreate(req.user!.id, 'interview', newInterview.id, newInterview, req);

@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { usePageVisibility } from '@/hooks/usePageVisibility';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +29,7 @@ export default function MarketingPage() {
   const [showRequirementForm, setShowRequirementForm] = useState(false);
   const [showInterviewForm, setShowInterviewForm] = useState(false);
   const [showConsultantForm, setShowConsultantForm] = useState(false);
+  const isPageVisible = usePageVisibility();
 
   // Initialize CSRF token on page load
   useEffect(() => {
@@ -128,7 +130,9 @@ export default function MarketingPage() {
         };
       }
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    // Only poll when page is visible (saves battery and network)
+    refetchInterval: isPageVisible ? 30000 : false,
+    refetchIntervalInBackground: false, // Don't poll in background
     staleTime: 15000, // Consider stale after 15 seconds
   });
 

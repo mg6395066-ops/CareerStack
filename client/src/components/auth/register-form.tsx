@@ -82,14 +82,14 @@ export function RegisterForm() {
     },
   });
 
-  async function onSubmit(data: FormData) {
+  async function onSubmit(formData: FormData) {
     setIsLoading(true);
     try {
       // Sanitize the data
       const sanitizedData = {
-        email: data.email.toLowerCase().trim(),
-        pseudoName: data.pseudoName.trim(),
-        password: data.password,
+        email: formData.email.toLowerCase().trim(),
+        pseudoName: formData.pseudoName.trim(),
+        password: formData.password,
       };
 
       // Get CSRF token
@@ -114,7 +114,9 @@ export function RegisterForm() {
         throw new Error(error.message || 'Failed to register');
       }
 
-      // Inform user and redirect to email verification instructions
+      const responseData: { verificationToken: string } = await response.json();
+      
+      // Inform user and redirect to email verification page with token
       toast({
         title: 'Account created! Verify your email',
         description:
@@ -122,8 +124,9 @@ export function RegisterForm() {
         duration: 6000,
       });
 
-      // Navigate to verification helper page
-      window.location.href = '/verify-email';
+      // Navigate to verification page with token in URL
+      const token = encodeURIComponent(responseData.verificationToken);
+      window.location.href = `/verify-email?token=${token}`;
     } catch (error: any) {
       console.error('Registration error:', error);
 

@@ -58,7 +58,7 @@ export default function Landing() {
                 <FileText className="text-white" size={20} />
               </div>
               <h1 className="text-xl font-bold text-foreground tracking-tight">
-                CareerStack
+                NRE OneHub Suite
               </h1>
             </div>
 
@@ -314,9 +314,9 @@ export default function Landing() {
             <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
               <FileText className="text-primary-foreground" size={16} />
             </div>
-            <span className="text-lg font-semibold text-foreground">CareerStack</span>
+            <span className="text-lg font-semibold text-foreground">NRE OneHub Suite</span>
           </div>
-          <p className="text-muted-foreground">© 2024 CareerStack. All rights reserved.</p>
+          <p className="text-muted-foreground">© 2024 NRE Infusion. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -7,40 +7,65 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Simple cache for CSRF token
+let csrfTokenCache: string | undefined;
+let csrfTokenFetchPromise: Promise<string | undefined> | undefined;
+
 // Function to fetch CSRF token if not present
 async function ensureCSRFToken(): Promise<string | undefined> {
-  // Check if token already exists in cookie
+  // Check if token already exists in cookie (fast path)
   const existingToken = document.cookie
     .split('; ')
     .find(row => row.startsWith('csrf_token='))
     ?.split('=')[1];
   
   if (existingToken) {
+    csrfTokenCache = existingToken;
     return existingToken;
   }
   
-  // If no token, try to get it by making a simple GET request to any API endpoint
-  // This should trigger the CSRF middleware to set the token
-  try {
-    console.log('🔒 Fetching CSRF token by making GET request...');
-    const response = await fetch('/api/auth/user', {
-      method: 'GET',
-      credentials: 'include',
-    });
-    
-    // Don't care about the response, just check if token was set
-    const newToken = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('csrf_token='))
-      ?.split('=')[1];
-    
-    console.log(`🔒 CSRF token after GET request: ${newToken ? 'Success' : 'Failed'}`);
-    return newToken;
-  } catch (error) {
-    console.warn('🔒 Failed to fetch CSRF token:', error);
+  // Return cached token if available
+  if (csrfTokenCache) {
+    return csrfTokenCache;
   }
   
-  return undefined;
+  // If already fetching, return the same promise to avoid duplicate requests
+  if (csrfTokenFetchPromise) {
+    return csrfTokenFetchPromise;
+  }
+  
+  // Fetch token with timeout (don't block requests)
+  csrfTokenFetchPromise = (async () => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
+      
+      const response = await fetch('/api/health', {
+        method: 'GET',
+        credentials: 'include',
+        signal: controller.signal,
+      }).catch(() => null); // Silently fail if request fails
+      
+      clearTimeout(timeoutId);
+      
+      if (response && response.ok) {
+        const newToken = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('csrf_token='))
+          ?.split('=')[1];
+        
+        if (newToken) {
+          csrfTokenCache = newToken;
+        }
+        return newToken;
+      }
+    } catch (error) {
+      // Silently fail - proceed without token if necessary
+    }
+    return undefined;
+  })();
+  
+  return csrfTokenFetchPromise;
 }
 
 // Function to refresh CSRF token proactively

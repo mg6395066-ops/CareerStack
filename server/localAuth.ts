@@ -514,14 +514,14 @@ export async function hashPassword(password: string): Promise<string> {
 
 
 export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
-  logger.info('isAuthenticated middleware:', {
+  logger.info({
     path: req.path,
     method: req.method,
     sessionID: req.sessionID,
     hasUser: !!req.user,
     isAuthenticated: req.isAuthenticated?.(),
     cookies: req.headers.cookie?.substring(0, 50) + '...'
-  });
+  }, 'isAuthenticated middleware');
 
   // Check if it's a public route that doesn't need authentication
   const publicRoutes = ['/login', '/register', '/forgot-password', '/', '/health'];
@@ -535,19 +535,19 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
   }
 
   if (req.isAuthenticated && req.isAuthenticated()) {
-    logger.info('User is authenticated, proceeding');
+    logger.info({}, 'User is authenticated, proceeding');
     return next();
   }
   
   // Return more specific error for API endpoints
   if (req.path.startsWith('/api/')) {
-    logger.warn('API request rejected - not authenticated:', {
+    logger.warn({
       path: req.path,
       method: req.method,
       sessionID: req.sessionID,
       hasUser: !!req.user,
       isAuthenticated: req.isAuthenticated?.()
-    });
+    }, 'API request rejected - not authenticated');
 
     return res.status(401).json({ 
       message: "Authentication required",

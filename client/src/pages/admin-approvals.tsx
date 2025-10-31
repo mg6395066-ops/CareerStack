@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ interface ApprovalStats {
 export default function AdminApprovalsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
   
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -182,13 +184,13 @@ export default function AdminApprovalsPage() {
           <h1 className="text-3xl font-bold tracking-tight">User Approvals</h1>
           <p className="text-muted-foreground mt-2">Review and approve new user registrations</p>
           <div className="flex gap-2 mt-4">
-            <Button onClick={() => window.location.href = '/admin'} variant="outline">
+            <Button onClick={() => navigate('/admin')} variant="outline">
               User Management
             </Button>
-            <Button onClick={() => window.location.href = '/admin/approvals'} variant="default">
+            <Button onClick={() => navigate('/admin/approvals')} variant="default">
               Pending Approvals
             </Button>
-            <Button onClick={() => window.location.href = '/admin/security'} variant="outline">
+            <Button onClick={() => navigate('/admin/security')} variant="outline">
               <AlertTriangle className="h-4 w-4 mr-2" />
               Security
             </Button>

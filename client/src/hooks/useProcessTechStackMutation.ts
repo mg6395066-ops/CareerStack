@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { safeRedirect } from "@/lib/navigation";
 
 export function useProcessTechStackMutation(resumeId: string, input: string, previewStats: { totalPoints: number; totalTechs: number }, onSuccess: (data: any) => void) {
   const { toast } = useToast();
@@ -55,7 +56,7 @@ export function useProcessTechStackMutation(resumeId: string, input: string, pre
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          safeRedirect("/login");
         }, 500);
         return;
       }

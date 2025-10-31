@@ -24,7 +24,7 @@ import {
   Paperclip, Download, FileText, ChevronLeft, ChevronRight,
   ArrowLeft, ReplyAll, Printer, Tag
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format } from 'date-fns/format';
 import { cn } from '@/lib/utils';
 import { EmailMessage } from '@/types/email';
 import { EmailContent } from './email-content';

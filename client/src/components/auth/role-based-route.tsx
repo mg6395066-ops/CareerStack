@@ -1,6 +1,5 @@
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
-import { Navigate } from 'react-router-dom';
 
 interface RoleBasedRouteProps {
   children: React.ReactNode;
@@ -40,8 +39,9 @@ export function RoleBasedRoute({ children, allowedRoles }: RoleBasedRouteProps) 
   const hasRequiredRole = allowedRoles.includes(userRole);
 
   if (!hasRequiredRole) {
-    // Redirect to unauthorized page or dashboard
-    return <Navigate to="/unauthorized" />;
+    // Redirect to unauthorized page
+    setLocation('/unauthorized');
+    return null;
   }
 
   // User has required role, render children

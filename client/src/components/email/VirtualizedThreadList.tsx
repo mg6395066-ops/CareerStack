@@ -7,7 +7,7 @@
 
 import React, { useRef, useEffect, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { format } from 'date-fns';
+import { format } from 'date-fns/format';
 import { Badge } from '@/components/ui/badge';
 import { Star, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';

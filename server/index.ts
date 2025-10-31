@@ -70,6 +70,16 @@ app.use(
       },
     },
     crossOriginEmbedderPolicy: process.env.NODE_ENV === 'production',
+    hsts: process.env.NODE_ENV === 'production' ? {
+      maxAge: 31536000, // 1 year in seconds
+      includeSubDomains: true,
+      preload: true,
+    } : false,
+    referrerPolicy: { policy: 'strict-no-referrer' },
+    xXssProtection: true,
+    noSniff: true,
+    xPoweredBy: false,
+    xFrameOptions: { action: 'deny' },
   })
 );
 

@@ -9,7 +9,7 @@ async function main() {
     process.exit(1)
   }
 
-  const subject = process.env.TEST_EMAIL_SUBJECT || 'Test email from Resume Customizer Pro'
+  const subject = process.env.TEST_EMAIL_SUBJECT || 'Test email from NRE Infusion OneHub Suite'
   const html = `<p>This is a test email sent at ${new Date().toISOString()}.</p>`
 
   console.log(`📧 Preparing to send email to: ${to}`)

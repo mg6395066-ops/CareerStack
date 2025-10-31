@@ -128,8 +128,9 @@ export function configurePassport(passport: any) {
         return done(null, false);
       }
 
-      // Check if user is approved
-      if (user.approvalStatus !== 'approved') {
+      // Check if user is approved (allow 'approved' or null for backwards compatibility)
+      if (user.approvalStatus && user.approvalStatus !== 'approved') {
+        logger.warn({ userId: id, approvalStatus: user.approvalStatus }, 'User not approved, cannot deserialize');
         return done(null, false);
       }
 

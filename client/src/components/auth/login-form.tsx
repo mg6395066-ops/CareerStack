@@ -119,6 +119,7 @@ export function LoginForm({ onForgotPassword, onSuccess }: LoginFormProps = {}) 
         localStorage.removeItem('lastAuthLoopReset');
         
         // Force refresh the auth query to pick up the new authentication state
+        // Don't wait - let the query handle retries with backoff
         queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       } catch (e) {}
 
@@ -142,16 +143,17 @@ export function LoginForm({ onForgotPassword, onSuccess }: LoginFormProps = {}) 
       localStorage.removeItem('lastAuthLoopReset');
       localStorage.removeItem('authErrorHandledAt');
       localStorage.removeItem('lastAuthRedirect');
+      localStorage.removeItem('lastPrivateRedirect');
 
       // Only redirect to saved URL if it's a public page, otherwise go to dashboard
       const publicPages = ['/', '/privacy'];
       const targetUrl = (redirectUrl && publicPages.includes(redirectUrl)) ? redirectUrl : '/dashboard';
       
-      // Use a small delay to ensure the auth state is updated before redirect
+      // The auth query is now refetching. Give it time to establish the session
+      // and fetch user data before redirecting
       setTimeout(() => {
-        // Force a full page reload to ensure proper authentication state
-        window.location.href = targetUrl;
-      }, 100);
+        setLocation(targetUrl);
+      }, 1000);
     } catch (error: any) {
       console.error('Login error caught:', error);
       setAttemptCount((prev) => prev + 1);

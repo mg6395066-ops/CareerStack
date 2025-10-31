@@ -34,13 +34,17 @@ export default function Landing() {
     }
   );
 
-  // Redirect authenticated users to dashboard
+  // Redirect authenticated users to dashboard - but not while auth dialog is open
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
+    // Don't redirect if auth dialog is open (user is still in login/register process)
+    if (isAuthenticated && !isLoading && !authDialog) {
       console.log('User is authenticated, redirecting to dashboard');
-      window.location.href = '/dashboard';
+      // Small delay to allow cleanup
+      setTimeout(() => {
+        setLocation('/dashboard');
+      }, 100);
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, authDialog, setLocation]);
 
   // Show loading only while checking auth, not during redirect
   if (isLoading) {
@@ -297,7 +301,7 @@ export default function Landing() {
           <Button
             size="lg"
             variant="secondary"
-            onClick={() => (window.location.href = '/login')}
+            onClick={() => setLocation('/login')}
             className="bg-white text-primary hover:bg-white/95 smooth-hover shadow-xl text-lg px-8 py-6 h-auto font-semibold"
             data-testid="button-start-now"
           >

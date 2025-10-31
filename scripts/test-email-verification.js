@@ -79,7 +79,7 @@ try {
       const testEmail = process.env.TEST_EMAIL_TO || process.env.EMAIL_USER;
       
       const mailOptions = {
-        from: `"Resume Customizer Pro" <${process.env.EMAIL_USER}>`,
+        from: `"NRE Infusion OneHub Suite" <${process.env.EMAIL_USER}>`,
         to: testEmail,
         subject: '[TEST] Email Verification Test',
         html: `

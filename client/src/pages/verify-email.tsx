@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
-import { LoadingButton } from '@/components/ui/loading-button';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { LoadingButton } from '@/components/ui/loading-button';
 
 function ResendVerification() {
   const [email, setEmail] = useState('');
@@ -65,6 +66,7 @@ function ResendVerification() {
 }
 
 export default function VerifyEmailPage() {
+  const [, navigate] = useLocation();
   const [status, setStatus] = useState<'pending' | 'success' | 'error'>('pending');
   const [message, setMessage] = useState<string>('Verifying your email...');
   const { toast } = useToast();
@@ -109,8 +111,8 @@ export default function VerifyEmailPage() {
           <p className={status === 'error' ? 'text-red-600' : 'text-muted-foreground'}>{message}</p>
           <div className="flex flex-col items-center gap-3">
             <div className="flex gap-2">
-              <Button onClick={() => (window.location.href = '/login')} variant="default">Go to Login</Button>
-              <Button onClick={() => (window.location.href = '/')} variant="outline">Home</Button>
+              <Button onClick={() => navigate('/login')} variant="default">Go to Login</Button>
+              <Button onClick={() => navigate('/')} variant="outline">Home</Button>
             </div>
             <ResendVerification />
           </div>

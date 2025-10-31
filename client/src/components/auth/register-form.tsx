@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Loader2, Shield } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useLocation } from 'wouter';
 import { getCsrfToken } from '@/lib/csrf';
 import {
   Form,
@@ -64,6 +64,7 @@ const formSchema = z
 type FormData = z.infer<typeof formSchema>;
 
 export function RegisterForm() {
+  const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -126,7 +127,7 @@ export function RegisterForm() {
 
       // Navigate to verification page with token in URL
       const token = encodeURIComponent(responseData.verificationToken);
-      window.location.href = `/verify-email?token=${token}`;
+      setLocation(`/verify-email?token=${token}`);
     } catch (error: any) {
       console.error('Registration error:', error);
 

@@ -11,8 +11,16 @@ import { db } from '../config/database';
 import { users, userDevices } from '@shared/schema';
 import { eq, and, gt } from 'drizzle-orm';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('CRITICAL: JWT_SECRET environment variable is required. Set it in your .env file.');
+}
+
+if (!JWT_REFRESH_SECRET) {
+  throw new Error('CRITICAL: JWT_REFRESH_SECRET environment variable is required. Set it in your .env file.');
+}
 const ACCESS_TOKEN_EXPIRY = '15m'; // Short-lived access tokens
 const REFRESH_TOKEN_EXPIRY = '7d'; // Long-lived refresh tokens
 

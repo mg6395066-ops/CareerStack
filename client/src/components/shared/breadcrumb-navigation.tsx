@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'wouter';
 import { ChevronRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -15,13 +16,15 @@ interface BreadcrumbNavigationProps {
 }
 
 export function BreadcrumbNavigation({ items, className = '' }: BreadcrumbNavigationProps) {
+  const [, navigate] = useLocation();
+  
   return (
     <nav className={`flex items-center space-x-2 text-sm ${className}`} aria-label="Breadcrumb">
       <Button
         variant="ghost"
         size="sm"
         className="h-6 px-2 text-slate-500 hover:text-slate-700"
-        onClick={() => window.location.href = '/dashboard'}
+        onClick={() => navigate('/dashboard')}
       >
         <Home size={14} />
       </Button>

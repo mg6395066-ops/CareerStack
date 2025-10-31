@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -53,7 +54,7 @@ import {
 import { AppHeader } from '@/components/shared/app-header';
 import { LoginHistoryDialog } from '@/components/admin/login-history-dialog';
 import { ActiveSessionsDialog } from '@/components/admin/active-sessions-dialog';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 
 interface User {
   id: string;
@@ -85,6 +86,7 @@ interface Role {
 export default function AdminPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
 
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -284,18 +286,18 @@ export default function AdminPage() {
           <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
           <p className="text-muted-foreground mt-2">Manage users and system settings</p>
           <div className="flex gap-2 mt-4">
-            <Button onClick={() => (window.location.href = '/admin')} variant="default">
+            <Button onClick={() => navigate('/admin')} variant="default">
               User Management
             </Button>
-            <Button onClick={() => (window.location.href = '/admin/approvals')} variant="outline">
+            <Button onClick={() => navigate('/admin/approvals')} variant="outline">
               Pending Approvals
             </Button>
-            <Button onClick={() => (window.location.href = '/admin/security')} variant="outline">
+            <Button onClick={() => navigate('/admin/security')} variant="outline">
               <AlertTriangle className="h-4 w-4 mr-2" />
               Security
             </Button>
             <Button
-              onClick={() => (window.location.href = '/admin/error-reports')}
+              onClick={() => navigate('/admin/error-reports')}
               variant="outline"
             >
               <AlertCircle className="h-4 w-4 mr-2" />
@@ -353,7 +355,7 @@ export default function AdminPage() {
                 variant="outline"
                 size="sm"
                 className="mt-3 w-full text-xs"
-                onClick={() => (window.location.href = '/admin/security')}
+                onClick={() => navigate('/admin/security')}
               >
                 View Security Dashboard
               </Button>

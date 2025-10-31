@@ -122,7 +122,10 @@ export function ProgressIndicator({
     manager.importRecoveryData(file)
       .then(() => {
         alert('Backups imported successfully');
-        window.location.reload(); // Refresh to load new backups
+        // Trigger a refresh of the component by calling onRecover with the latest backup
+        if (recoveryData.length > 0) {
+          onRecover?.(recoveryData[0].checksum);
+        }
       })
       .catch(error => {
         console.error('Failed to import backups:', error);

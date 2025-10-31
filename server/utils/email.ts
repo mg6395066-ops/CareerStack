@@ -1,4 +1,5 @@
-import nodemailer, { TransportOptions } from 'nodemailer';
+import { createTransport } from 'nodemailer';
+import type { TransportOptions } from 'nodemailer';
 import { google } from 'googleapis';
 import { config } from 'dotenv';
 import { logger } from './logger';
@@ -53,8 +54,9 @@ const createTransporter = async () => {
     // If Gmail API is not configured, check EMAIL_PROVIDER and fall back to regular SMTP
   const provider = (process.env.EMAIL_PROVIDER || '').toLowerCase();
 
-    // If Gmail API is not configured, fall back to regular SMTP
-    if (!process.env.GMAIL_CLIENT_ID) {
+    // If Gmail OAuth is not fully configured, fall back to regular SMTP
+    if (!process.env.GMAIL_CLIENT_ID || !process.env.GMAIL_CLIENT_SECRET || !process.env.GMAIL_REFRESH_TOKEN) {
+      logger.info('Gmail OAuth not configured, using SMTP');
       const smtpConfig = {
         service: process.env.EMAIL_SERVICE || 'gmail',
         host: process.env.EMAIL_HOST || 'smtp.gmail.com',
@@ -63,14 +65,10 @@ const createTransporter = async () => {
         auth: {
           user: process.env.EMAIL_USER || '',
           // Common pitfall: some providers (e.g., Gmail app passwords) are copied with spaces
-          pass: (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '')
+          pass: (process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS || '').replace(/\s+/g, '')
         }
       } as TransportOptions;
-      return nodemailer.createTransport(smtpConfig);
-    }
-
-    if (!process.env.GMAIL_CLIENT_SECRET || !process.env.GMAIL_REFRESH_TOKEN) {
-      throw new Error('Missing Gmail configuration');
+      return createTransport(smtpConfig);
     }
 
     const oauth2Client = new OAuth2(
@@ -97,7 +95,7 @@ const createTransporter = async () => {
       }
     } as GmailTransportConfig;
   
-    return nodemailer.createTransport(transportConfig);
+    return createTransport(transportConfig);
   } catch (error) {
     logger.error({ error: error }, 'Error creating transporter:');
     throw error;
@@ -128,9 +126,9 @@ export async function sendEmail(
     
     // Build a safe "from" header
     const envFrom = (process.env.EMAIL_FROM || '').trim();
-    const defaultFrom = process.env.EMAIL_USER ? `"Resume Customizer Pro" <${process.env.EMAIL_USER}>` : undefined;
+    const defaultFrom = process.env.EMAIL_USER ? `"NRE Infusion OneHub Suite" <${process.env.EMAIL_USER}>` : undefined;
     const fromHeader = envFrom
-      ? (envFrom.includes('<') ? envFrom : `"Resume Customizer Pro" <${envFrom}>`)
+      ? (envFrom.includes('<') ? envFrom : `"NRE Infusion OneHub Suite" <${envFrom}>`)
       : (defaultFrom || 'no-reply@example.com');
 
     // Extract domain for Message-ID
@@ -207,11 +205,11 @@ export async function sendEmail(
           secure: process.env.EMAIL_SECURE === 'true',
           auth: {
             user: process.env.EMAIL_USER || '',
-            pass: (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '')
+            pass: (process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS || '').replace(/\s+/g, '')
           }
         } as TransportOptions;
         logger.info('🔁 Attempting fallback send via generic SMTP settings...');
-        transporter = nodemailer.createTransport(fallbackSmtp);
+        transporter = createTransport(fallbackSmtp);
         const info2 = await transporter.sendMail(mailOptions);
         logger.info(`✅ Fallback email sent successfully! Message ID: ${info2.messageId}`);
         logger.info(`📧 Email details - To: ${to}, Subject: ${subject}`);
@@ -238,7 +236,7 @@ export async function sendEmail(
 
 export const emailTemplates = {
   verification: (name: string, verificationLink: string) => ({
-    subject: 'Please verify your Resume Customizer Pro account',
+    subject: 'Please verify your NRE Infusion OneHub Suite account',
     html: `
       <!DOCTYPE html>
       <html lang="en">

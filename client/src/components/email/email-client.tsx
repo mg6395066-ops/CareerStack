@@ -409,7 +409,9 @@ function EmailClientInner() {
       
       if (response.ok) {
         const { authUrl } = await response.json();
-        window.location.href = authUrl;
+        // OAuth redirect - use safeRedirect for proper throttling
+        const { safeRedirect: redirect } = await import('@/lib/navigation');
+        redirect(authUrl);
       }
     } catch (error) {
       toast.error('Failed to connect account');

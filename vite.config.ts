@@ -65,6 +65,7 @@ export default defineConfig({
     target: 'es2020',
     sourcemap: false,
     cssCodeSplit: true,
+    cssMinify: 'esbuild',
     reportCompressedSize: false,
     assetsInlineLimit: 8192, // 8kb - increased for better performance
     minify: 'terser',
@@ -73,10 +74,20 @@ export default defineConfig({
         drop_console: true,
         drop_debugger: true,
         pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
-        passes: 2,
+        passes: 3,
+        pure_getters: true,
+        unsafe: true,
+        unsafe_comps: true,
+        inline: 3,
       },
       mangle: {
         safari10: true,
+        properties: {
+          regex: '^_private_', // Only mangle private properties
+        },
+      },
+      format: {
+        comments: false,
       },
     },
     commonjsOptions: {
@@ -90,25 +101,51 @@ export default defineConfig({
       },
       output: {
         globals: {},
-        manualChunks: {
+        manualChunks: (id) => {
+          // Make editor lazy by not including it in vendor chunks unless explicitly used
+          if (id.includes('@harbour-enterprises/superdoc')) {
+            return 'vendor-editor-lazy';
+          }
+          
           // React core
-          'vendor-react': ['react', 'react-dom'],
-          // UI components
-          'vendor-ui': ['@radix-ui/react-alert-dialog', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-toast'],
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            return 'vendor-react';
+          }
+          
+          // Radix UI components - split to reduce initial load
+          if (id.includes('@radix-ui')) {
+            return 'vendor-ui';
+          }
+          
           // Document processing
-          'vendor-docs': ['html2canvas', 'jspdf'],
-          // Query and state
-          'vendor-query': ['@tanstack/react-query'],
-          // Editor
-          'vendor-editor': ['@harbour-enterprises/superdoc'],
+          if (id.includes('html2canvas') || id.includes('jspdf')) {
+            return 'vendor-docs';
+          }
+          
+          // Query
+          if (id.includes('@tanstack/react-query')) {
+            return 'vendor-query';
+          }
+          
           // Forms and validation
-          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          if (id.includes('react-hook-form') || id.includes('@hookform/resolvers') || id.includes('zod')) {
+            return 'vendor-forms';
+          }
+          
           // Motion and animations
-          'vendor-motion': ['framer-motion'],
+          if (id.includes('framer-motion')) {
+            return 'vendor-motion';
+          }
+          
           // Icons
-          'vendor-icons': ['lucide-react'],
+          if (id.includes('lucide-react')) {
+            return 'vendor-icons';
+          }
+          
           // Utils
-          'vendor-utils': ['date-fns', 'clsx', 'tailwind-merge', 'nanoid'],
+          if (id.includes('date-fns') || id.includes('clsx') || id.includes('tailwind-merge') || id.includes('nanoid')) {
+            return 'vendor-utils';
+          }
         },
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
@@ -126,7 +163,7 @@ export default defineConfig({
         },
       },
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500,
   },
   worker: {
     format: 'es',

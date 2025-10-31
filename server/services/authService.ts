@@ -221,13 +221,14 @@ export class AuthService {
       });
       if (ok) {
         logger.info(`✅ Verification email sent via SMTP to ${email}`);
-        return { accepted: [email], rejected: [], messageId: 'local-smtp', response: 'OK' } as any;
+        return { accepted: [email], rejected: [], messageId: 'local-smtp', response: 'OK', error: undefined } as any;
       }
       logger.warn(`⚠️ SMTP transporter reported failure sending verification email to ${email}`);
-      return { accepted: [], rejected: [email], messageId: 'smtp-failed', response: 'FAILED' } as any;
+      return { accepted: [], rejected: [email], messageId: 'smtp-failed', response: 'FAILED', error: 'SMTP transporter failed' } as any;
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
       logger.error({ err: error }, `❌ Failed to send verification email to ${email}`);
-      return { accepted: [], rejected: [email], messageId: 'smtp-exception', response: String(error) } as any;
+      return { accepted: [], rejected: [email], messageId: 'smtp-exception', response: String(error), error: errorMsg } as any;
     }
   }
 

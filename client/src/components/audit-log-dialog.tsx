@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 type SelectChangeEvent = string;
 

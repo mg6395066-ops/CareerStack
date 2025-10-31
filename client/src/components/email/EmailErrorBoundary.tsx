@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { safeRedirect } from '@/lib/navigation';
 
 interface Props {
   children: ReactNode;
@@ -92,7 +93,7 @@ export class EmailErrorBoundary extends Component<Props, State> {
               
               <Button
                 variant="outline"
-                onClick={() => window.location.href = '/dashboard'}
+                onClick={() => safeRedirect('/dashboard')}
                 className="w-full"
               >
                 Go to Dashboard

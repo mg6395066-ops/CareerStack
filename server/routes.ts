@@ -980,7 +980,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }).where(eq(users.id, user.id));
 
         const name = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || 'User';
-        await (await import('./services/authService')).AuthService.sendVerificationEmail(email, name, verification.token);
+        const { AuthService } = await import('./services/authService');
+        const result = await AuthService.sendVerificationEmail(email, name, verification.token);
+        
+        // Log email send result for debugging
+        if (!result.accepted || result.accepted.length === 0) {
+          logError('Resend Verification', 'Email send failed', { email, error: result.error });
+        } else {
+          logSuccess('Verification email sent', { email, messageId: result.messageId });
+        }
       }
 
       // Always return success to avoid email enumeration

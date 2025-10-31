@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, AlertTriangle, TrendingUp, XCircle, Loader2, MapPin, Monitor, Globe, RefreshCw, Clock } from 'lucide-react';
 import { AppHeader } from '@/components/shared/app-header';
 import { LoginHistoryDialog } from '@/components/admin/login-history-dialog';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 
 interface SuspiciousLogin {
   id: string;
@@ -39,6 +40,7 @@ interface SecurityStats {
 }
 
 export default function AdminSecurityPage() {
+  const [, navigate] = useLocation();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
@@ -127,13 +129,13 @@ export default function AdminSecurityPage() {
           </h1>
           <p className="text-muted-foreground mt-2">Monitor suspicious login attempts and security threats</p>
           <div className="flex gap-2 mt-4">
-            <Button onClick={() => window.location.href = '/admin'} variant="outline">
+            <Button onClick={() => navigate('/admin')} variant="outline">
               User Management
             </Button>
-            <Button onClick={() => window.location.href = '/admin/approvals'} variant="outline">
+            <Button onClick={() => navigate('/admin/approvals')} variant="outline">
               Pending Approvals
             </Button>
-            <Button onClick={() => window.location.href = '/admin/security'} variant="default">
+            <Button onClick={() => navigate('/admin/security')} variant="default">
               <AlertTriangle className="h-4 w-4 mr-2" />
               Security
             </Button>

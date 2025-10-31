@@ -191,13 +191,13 @@ const user = db.query.users.findFirst({
 The system includes pre-designed HTML templates for:
 
 1. **Verification Email** (`emailTemplates.verification`)
-   - Subject: "Please verify your Resume Customizer Pro account"
+   - Subject: "Please verify your NRE Infusion OneHub Suite account"
    - Contains verification link button
    - Fallback plain-text link
    - Professional branded layout
 
 2. **Password Reset Email** (`emailTemplates.passwordReset`)
-   - Subject: "Reset Your Resume Customizer Pro Password"
+   - Subject: "Reset Your NRE Infusion OneHub Suite Password"
    - 1-hour expiration warning
    - Security notice
    - Reset link button

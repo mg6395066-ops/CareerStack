@@ -3,6 +3,7 @@ import App from './App';
 import './index.css';
 import { logStartupInfo } from './lib/debug';
 import { clearAllClientAuthData } from './lib/clearAuthData';
+import { setupGlobalErrorHandlers } from './lib/globalErrorHandler';
 
 // Register service worker only in production to avoid dev issues
 async function registerServiceWorker() {
@@ -45,6 +46,9 @@ window.addEventListener('load', registerServiceWorker);
 
 // Log startup info for debugging
 logStartupInfo();
+
+// Initialize global error handlers for non-React errors
+setupGlobalErrorHandlers();
 
 createRoot(document.getElementById('root')!).render(<App />);
 

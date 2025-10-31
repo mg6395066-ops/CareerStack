@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
@@ -7,19 +7,19 @@ import { usePageVisibility } from '@/hooks/usePageVisibility';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Calendar, Users, Download, Plus, Filter, BarChart3, type LucideIcon } from 'lucide-react';
+import { FileText, Calendar, Users, Download, Plus, Filter, BarChart3, type LucideIcon, Loader2 } from 'lucide-react';
 import { AppHeader } from '@/components/shared/app-header';
 import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-navigation';
 import { EnhancedHeader } from '@/components/shared/enhanced-header';
 import { MetricCard, StatusDistribution } from '@/components/ui/data-visualization';
 
-// Import Marketing components
-import RequirementsSection from '@/components/marketing/requirements-section';
-import InterviewsSection from '@/components/marketing/interviews-section';
-import ConsultantsSection from '@/components/marketing/consultants-section';
-import AdvancedRequirementsForm from '@/components/marketing/advanced-requirements-form';
-import InterviewForm from '@/components/marketing/interview-form';
-import AdvancedConsultantForm from '@/components/marketing/advanced-consultant-form';
+// Lazy load Marketing components for better initial load time
+const RequirementsSection = lazy(() => import('@/components/marketing/requirements-section'));
+const InterviewsSection = lazy(() => import('@/components/marketing/interviews-section'));
+const ConsultantsSection = lazy(() => import('@/components/marketing/consultants-section'));
+const AdvancedRequirementsForm = lazy(() => import('@/components/marketing/advanced-requirements-form'));
+const InterviewForm = lazy(() => import('@/components/marketing/interview-form'));
+const AdvancedConsultantForm = lazy(() => import('@/components/marketing/advanced-consultant-form'));
 // import DebugConsultants from '../../debug-consultants';
 
 export default function MarketingPage() {
@@ -347,54 +347,69 @@ export default function MarketingPage() {
 
         {/* Main Content Area */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-          <div className="p-6">{activeComponent}</div>
+          <div className="p-6">
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-3 text-slate-600">Loading section...</span>
+              </div>
+            }>
+              {activeComponent}
+            </Suspense>
+          </div>
         </div>
       </div>
 
       {/* Quick Add Forms */}
       {showRequirementForm && (
-        <AdvancedRequirementsForm
-          open={showRequirementForm}
-          onClose={() => setShowRequirementForm(false)}
-          onSubmit={async (requirements) => {
-            // Handle form submission
-            try {
-              // You would typically make an API call here
-              console.log('Submitting requirements:', requirements);
-              setShowRequirementForm(false);
-            } catch (error) {
-              console.error('Error submitting requirements:', error);
-            }
-          }}
-        />
+        <Suspense fallback={null}>
+          <AdvancedRequirementsForm
+            open={showRequirementForm}
+            onClose={() => setShowRequirementForm(false)}
+            onSubmit={async (requirements) => {
+              // Handle form submission
+              try {
+                // You would typically make an API call here
+                console.log('Submitting requirements:', requirements);
+                setShowRequirementForm(false);
+              } catch (error) {
+                console.error('Error submitting requirements:', error);
+              }
+            }}
+          />
+        </Suspense>
       )}
       {showInterviewForm && (
-        <InterviewForm
-          open={showInterviewForm}
-          onClose={() => setShowInterviewForm(false)}
-          onSubmit={async (interview) => {
-            try {
-              console.log('Scheduling interview:', interview);
-              setShowInterviewForm(false);
-            } catch (error) {
-              console.error('Error scheduling interview:', error);
-            }
-          }}
-        />
+        <Suspense fallback={null}>
+          <InterviewForm
+            open={showInterviewForm}
+            onClose={() => setShowInterviewForm(false)}
+            onSubmit={async (interview) => {
+              try {
+                console.log('Scheduling interview:', interview);
+                setShowInterviewForm(false);
+              } catch (error) {
+                console.error('Error scheduling interview:', error);
+              }
+            }}
+          />
+        </Suspense>
       )}
       {showConsultantForm && (
-        <AdvancedConsultantForm
-          open={showConsultantForm}
-          onClose={() => setShowConsultantForm(false)}
-          onSubmit={async (consultant) => {
-            try {
-              console.log('Adding consultant:', consultant);
-              setShowConsultantForm(false);
-            } catch (error) {
-              console.error('Error adding consultant:', error);
-            }
-          }}
-        />
+        <Suspense fallback={null}>
+          <AdvancedConsultantForm
+            open={showConsultantForm}
+            onClose={() => setShowConsultantForm(false)}
+            onSubmit={async (consultant) => {
+              try {
+                console.log('Adding consultant:', consultant);
+                setShowConsultantForm(false);
+              } catch (error) {
+                console.error('Error adding consultant:', error);
+              }
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

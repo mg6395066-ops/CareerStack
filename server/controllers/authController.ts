@@ -92,6 +92,7 @@ export class AuthController {
         lastName,
         emailVerificationToken: verification.tokenHash,
         emailVerificationExpires: verification.expiresAt,
+        approvalStatus: 'approved',
       }).returning({
         id: users.id,
         email: users.email,

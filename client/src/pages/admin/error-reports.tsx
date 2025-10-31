@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { format } from 'date-fns';
+import { format } from 'date-fns/format';
 import { useToast } from '@/hooks/use-toast';
 import { ErrorReportStatus } from '@shared/schema/error-report';
 

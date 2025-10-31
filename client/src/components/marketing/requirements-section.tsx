@@ -239,13 +239,11 @@ export default function RequirementsSection() {
       case 'In Progress':
         return 'bg-yellow-100 text-yellow-800';
       case 'Submitted':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-orange-100 text-orange-800';
       case 'Closed':
         return 'bg-green-100 text-green-800';
       case 'Applied':
         return 'bg-purple-100 text-purple-800';
-      case 'Submitted':
-        return 'bg-orange-100 text-orange-800';
       case 'Interviewed':
         return 'bg-green-100 text-green-800';
       case 'Cancelled':

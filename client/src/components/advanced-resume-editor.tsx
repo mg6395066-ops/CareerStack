@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { FileText, AlertCircle } from 'lucide-react';
-import { SuperDocEditor } from './SuperDocEditor/SuperDocEditor';
+const SuperDocEditor = lazy(() => import('./SuperDocEditor/SuperDocEditor').then(m => ({ default: m.SuperDocEditor })));
 import type { Resume as SharedResume, PointGroup as SharedPointGroup } from '@shared/schema';
 
 interface AdvancedResumeEditorProps {
@@ -92,15 +92,17 @@ export default function AdvancedResumeEditor({
       </div>
       
       <div className="p-4">
-        <SuperDocEditor
-          fileUrl={fileUrl}
-          fileName={resume.fileName || 'document.docx'}
-          resumeId={resume.id}
-          onSave={handleSuperDocSave}
-          onExport={handleSuperDocExport}
-          height="600px"
-          className="border rounded-lg"
-        />
+        <Suspense fallback={<div className="border rounded-lg h-96 flex items-center justify-center bg-gray-100">Loading editor...</div>}>
+          <SuperDocEditor
+            fileUrl={fileUrl}
+            fileName={resume.fileName || 'document.docx'}
+            resumeId={resume.id}
+            onSave={handleSuperDocSave}
+            onExport={handleSuperDocExport}
+            height="600px"
+            className="border rounded-lg"
+          />
+        </Suspense>
       </div>
     </div>
   );

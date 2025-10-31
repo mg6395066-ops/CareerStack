@@ -4,6 +4,7 @@ import { useToast } from "./use-toast";
 import { clearAllClientAuthData } from '@/lib/clearAuthData';
 import { authCircuitBreaker } from '@/lib/authCircuitBreaker';
 import { authGlobalState } from '@/lib/authGlobalState';
+import { safeRedirect } from '@/lib/navigation';
 
 export interface User {
   id: string;
@@ -83,14 +84,26 @@ export function useAuth() {
       }
     },
     retry: (failureCount, error) => {
-      // Don't retry auth errors
+      // Don't retry auth errors except immediately after login
       if (error.message === 'UNAUTHORIZED' || error.message === 'USER_NOT_FOUND') {
+        // Only retry once right after login to give session time to establish
+        const rcp_loginAt = localStorage.getItem('rcp_loginAt');
+        if (rcp_loginAt && (Date.now() - parseInt(rcp_loginAt)) < 2000) {
+          return failureCount < 2; // Retry up to 2 times within 2 seconds of login
+        }
         return false;
       }
-      // Retry network errors up to 1 time only
-      return failureCount < 1;
+      // Retry network errors up to 2 times
+      return failureCount < 2;
     },
-    retryDelay: 500, // Reduced from 1000ms
+    retryDelay: (failureCount) => {
+      // Longer delay after login to give session time to establish
+      const rcp_loginAt = localStorage.getItem('rcp_loginAt');
+      if (rcp_loginAt && (Date.now() - parseInt(rcp_loginAt)) < 2000) {
+        return failureCount * 600; // 600ms, 1200ms delays
+      }
+      return 500;
+    },
     staleTime: 60 * 1000, // 60 seconds (increased from 30)
     gcTime: 10 * 60 * 1000, // Keep longer in cache to avoid refetch
     refetchOnWindowFocus: false,
@@ -125,7 +138,7 @@ export function useAuth() {
           } else {
             localStorage.removeItem('redirectAfterLogin');
           }
-          window.location.href = '/login';
+          safeRedirect('/login');
         }
       }
     }
@@ -232,14 +245,14 @@ export function useAuth() {
       
       // Redirect IMMEDIATELY - the query is already disabled
       setTimeout(() => {
-        window.location.href = "/";
+        safeRedirect("/");
       }, 100); // Minimal delay
       
     } catch (error) {
       console.error("Logout error:", error);
       setIsDisabled(true);
       // Force redirect for security
-      window.location.href = "/";
+      safeRedirect("/");
     }
   };
 

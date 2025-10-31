@@ -155,10 +155,10 @@ export function ProgressIndicator({
 
         {/* Actions */}
         <div className="flex gap-2 justify-end">
-          {error && (
+          {error && onCancel && (
             <Button
               variant="outline"
-              onClick={() => window.location.reload()}
+              onClick={onCancel}
             >
               Retry
             </Button>

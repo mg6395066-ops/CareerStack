@@ -588,10 +588,11 @@ export function SuperDocEditor({
               {isLoading ? 'Retrying...' : 'Try Again'}
             </Button>
             <Button 
-              onClick={() => window.location.reload()} 
+              onClick={handleRetry} 
               variant="outline"
+              disabled={isLoading}
             >
-              Reload Page
+              {isLoading ? 'Retrying...' : 'Try Again'}
             </Button>
           </div>
           {retryCount > 2 && (
